@@ -42,7 +42,15 @@ namespace FlaPoTest.Controllers
         public Result GetMostExpensiveProduct(string url)
         {
             var articles = GetArticlesAsTuple(url);
-            var maximum = articles.Select(a => a.Item1.PricePerLiter).Max();
+            decimal maximum;
+            try
+            {
+                maximum = articles.Select(a => a.Item1.PricePerLiter).Max();
+            }
+            catch(Exception ex)
+            {
+                return Result.ToResult("Most Expensive");
+            }
             return Result.ToResult("Most Expensive", articles.Where(a => a.Item1.PricePerLiter == maximum));
         }
 
@@ -50,7 +58,15 @@ namespace FlaPoTest.Controllers
         public Result GetCheapestProduct(string url)
         {
             var articles = GetArticlesAsTuple(url);
-            var minimum = articles.Select(a => a.Item1.PricePerLiter).Min();
+            decimal minimum;
+            try
+            {
+                minimum = articles.Select(a => a.Item1.PricePerLiter).Min();
+            }
+            catch(Exception ex)
+            {
+                return Result.ToResult("Cheapest");
+            }
             return Result.ToResult("Cheapest", articles.Where(a => a.Item1.PricePerLiter == minimum));
         }
 
@@ -73,7 +89,15 @@ namespace FlaPoTest.Controllers
         public Result GetMostBottles(string url)
         {
             var articles = GetArticlesAsTuple(url);
-            var maximum = articles.Select(a => a.Item1.NumberOfBottles).Max();
+            int maximum;
+            try
+            {
+                maximum = articles.Select(a => a.Item1.NumberOfBottles).Max();
+            }
+            catch (Exception ex)
+            {
+                return Result.ToResult("Most Bottles");
+            }
             return Result.ToResult("Most Bottles", articles.Where(a => a.Item1.NumberOfBottles == maximum));
         }
 
@@ -98,13 +122,23 @@ namespace FlaPoTest.Controllers
             {
                 using (WebClient wc = new WebClient())
                 {
-                    var json = wc.DownloadString(url);
+                    string json;
+                    try
+                    {
+                        json = wc.DownloadString(url);
+                    }
+                    catch(Exception ex)
+                    {
+                        json = "";
+                    }
                     var products = JsonConvert.DeserializeObject<IEnumerable<Product>>(json);
                     if(products != null)
                         Products.Add(url, products);
                 }
             }
-            return Products[url];
+            if(Products.ContainsKey(url))
+                return Products[url];
+            return new List<Product>();
         }
 
         /// <summary>
