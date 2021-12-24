@@ -46,5 +46,10 @@
                 result.AddProduct(tuple.Item2, tuple.Item1);
             return result;
         }
+
+        public static Result ToResult(string query)
+        {
+            return ToResult(query, new List<Tuple<Article, Product>>());
+        }
     }
 }
